@@ -30,7 +30,7 @@
 (defn render-standalone-pages [path-to-content]
   (doseq [file (file-seq (clojure.java.io/file path-to-content))]
     (when (.endsWith (.getName file) ".md")
-      (let [output-path (str "output/" (.replace (.getName file) ".md" ".html"))]
+      (let [output-path (str "docs/" (.replace (.getName file) ".md" ".html"))]
         (render-page (md/md-to-html-string (slurp (.getPath file)))
                      site-format
                      output-path))))) 
@@ -39,7 +39,7 @@
 (defn render-post [content meta-info template output-path]
   (let [word-count (str (count (str/split content #" ")) " words")
         meta-info (assoc meta-info :date (parse-date (meta-info :date)))
-        template-keys (merge meta-info {:length word-count :content content :link (.replace output-path "output/" "")}) 
+        template-keys (merge meta-info {:length word-count :content content :link (.replace output-path "docs/" "")}) 
         html (parser/render template template-keys)]
     (swap! posts conj template-keys)
     (render-page html site-format output-path)))
@@ -50,7 +50,7 @@
 (defn generate-posts [post-path post-template]
   (doseq [file (file-seq (clojure.java.io/file post-path))]
     (when (.endsWith (.getName file) ".md")
-      (let [output-path (str "output/" (.replace (.getName file) ".md" ".html"))]
+      (let [output-path (str "docs/" (.replace (.getName file) ".md" ".html"))]
         (render-post (md/md-to-html-string (slurp (.getPath file))) 
                      (read-string (slurp (.replace (.getPath file) ".md" ".meta"))) 
                      post-template output-path)))))
@@ -63,7 +63,7 @@
                           [:div {:class "meta-info"} (str (post :author) " · " (post :date) " · " (post :length))]
                           (str (apply str (interpose " " (take 100 (str/split (post :content) #" ")))) "...")]))
         html (parser/render (slurp "resources/templates/titlebar-and-theme.html") {:content post-blurbs})]
-    (spit "output/post-archive.html" html)))    
+    (spit "docs/post-archive.html" html)))    
 
 (defn -main [& args]
   (generate-posts post-path post-format)
