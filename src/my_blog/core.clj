@@ -38,8 +38,12 @@
 ;; Render a post: The blog-post.html template expects a title, author, date, length, and content.
 (defn render-post [content meta-info template output-path]
   (let [word-count (str (count (str/split content #" ")) " words")
-        meta-info (assoc meta-info :date (parse-date (meta-info :date)))
-        template-keys (merge meta-info {:length word-count :content content :link (.replace output-path "docs/" "")}) 
+        template-keys 
+          (merge meta-info 
+                 {:date-string (parse-date (meta-info :date)) 
+                  :length word-count 
+                  :content content 
+                  :link (.replace output-path "docs/" "")}) 
         html (parser/render template template-keys)]
     (swap! posts conj template-keys)
     (render-page html site-format output-path)))
@@ -57,10 +61,10 @@
 
 (defn render-post-archive []
   (let [post-blurbs (html5
-                      (for [post @posts] 
+                      (for [post (reverse (sort-by :date @posts))] 
                         [:div {:class "text-block"}
                           [:h1 [:a {:href (post :link)} (post :title)]]
-                          [:div {:class "meta-info"} (str (post :author) " · " (post :date) " · " (post :length))]
+                          [:div {:class "meta-info"} (str (post :author) " · " (post :date-string) " · " (post :length))]
                           (str (apply str (interpose " " (take 100 (str/split (post :content) #" ")))) "...")]))
         html (parser/render (slurp "resources/templates/titlebar-and-theme.html") {:content post-blurbs})]
     (spit "docs/post-archive.html" html)))    
