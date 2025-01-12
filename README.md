@@ -4,7 +4,7 @@ This is a program I wrote to render my personal blog. You could adapt it to your
 
 ## License
 
-Copyright © 2025 FIXME
+Copyright © 2025 Wyrxr 
 
 This program and the accompanying materials are made available under the
 terms of the Eclipse Public License 2.0 which is available at
