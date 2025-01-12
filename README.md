@@ -1,32 +1,6 @@
 # my-blog
 
-FIXME: description
-
-## Installation
-
-Download from http://example.com/FIXME.
-
-## Usage
-
-FIXME: explanation
-
-    $ java -jar my-blog-0.1.0-standalone.jar [args]
-
-## Options
-
-FIXME: listing of options this app accepts.
-
-## Examples
-
-...
-
-### Bugs
-
-...
-
-### Any Other Sections
-### That You Think
-### Might be Useful
+This is a program I wrote to render my personal blog. You could adapt it to your own needs, if you want, but it's not meant to be a general-purpose solution. I'll keep updating it as long as I'm interested. 
 
 ## License
 
