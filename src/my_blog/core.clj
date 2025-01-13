@@ -37,7 +37,7 @@
 
 ;; Render a post: The blog-post.html template expects a title, author, date, length, and content.
 (defn render-post [content meta-info template output-path]
-  (let [word-count (str (count (str/split content #" ")) " words")
+  (let [word-count (count (str/split content #" "))
         template-keys 
           (merge meta-info 
                  {:date-string (parse-date (meta-info :date)) 
@@ -64,8 +64,10 @@
                       (for [post (sort-by :date #(compare %2 %1) @posts)] ;; here we reverse the normal order of compare
                         [:div {:class "text-block"}                       ;; to get posts in reverse-chronological order
                           [:h1 [:a {:href (post :link)} (post :title)]]
-                          [:div {:class "meta-info"} (str (post :author) " · " (post :date-string) " · " (post :length))]
-                          (str (apply str (interpose " " (take 100 (str/split (post :content) #" ")))) "...")]))
+                          [:div {:class "meta-info"} (str (post :author) " · " (post :date-string) " · " (post :length) " words")]
+                          (str (apply str (interpose " " (take 100 (str/split (post :content) #" "))))) 
+                          (if (> (post :length) 100)
+                                 [:a {:href (post :link)} "...<br><br>(read more)"])]))
         html (parser/render (slurp "resources/templates/titlebar-and-theme.html") {:content post-blurbs})]
     (spit "docs/post-archive.html" html)))    
 
