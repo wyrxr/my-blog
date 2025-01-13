@@ -61,8 +61,8 @@
 
 (defn render-post-archive []
   (let [post-blurbs (html5
-                      (for [post (reverse (sort-by :date @posts))] 
-                        [:div {:class "text-block"}
+                      (for [post (sort-by :date #(compare %2 %1) @posts)] ;; here we reverse the normal order of compare
+                        [:div {:class "text-block"}                       ;; to get posts in reverse-chronological order
                           [:h1 [:a {:href (post :link)} (post :title)]]
                           [:div {:class "meta-info"} (str (post :author) " · " (post :date-string) " · " (post :length))]
                           (str (apply str (interpose " " (take 100 (str/split (post :content) #" ")))) "...")]))
