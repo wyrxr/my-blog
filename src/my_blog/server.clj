@@ -11,5 +11,6 @@
 
 (defn launch-site []
   (defroutes blog
-    (route/file "/" (do (println root) {:root root})))
+    (route/files "/" (do (println root) {:root root}))
+    (route/not-found (slurp "docs/404.html")))
   (run-jetty blog {:port 3000})) 
