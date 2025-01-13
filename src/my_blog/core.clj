@@ -3,7 +3,7 @@
             [hiccup.page :refer [html5]]
             [selmer.parser :as parser]
             [clojure.string :as str]
-            [my-blog.test :refer [launch-site]])) 
+            [my-blog.server :refer [launch-site]])) 
 
 ;; A list to keep track of the aggregated posts
 (def posts (atom (list)))
@@ -73,6 +73,6 @@
   (generate-posts post-path post-format)
   (render-post-archive)
   (render-standalone-pages "resources/content/standalone")
-  (if (some #{"testing"} args) 
+  (if (some #{"server"} args) 
     (do (println "Testing 1, 2, 3...")
         (launch-site @posts))))
