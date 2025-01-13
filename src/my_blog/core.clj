@@ -49,7 +49,7 @@
     (render-page html site-format output-path)))
 
 ;; Creates posts based on the given path
-;; Uses read-string funciton from clojure.core
+;; Uses read-string function from clojure.core
 ;; Do not use on untrusted data
 (defn generate-posts [post-path post-template]
   (doseq [file (file-seq (clojure.java.io/file post-path))]
@@ -73,6 +73,6 @@
   (generate-posts post-path post-format)
   (render-post-archive)
   (render-standalone-pages "resources/content/standalone")
-  (if (some #{"server"} args) 
+  (if (some #{"server"} args) ;; "lein run server" will build the website and launch the server. 
     (do (println "Testing 1, 2, 3...")
-        (launch-site @posts))))
+        (launch-site))))
