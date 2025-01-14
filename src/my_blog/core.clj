@@ -60,25 +60,48 @@
                      (read-string (slurp (.replace (.getPath file) ".md" ".meta"))) 
                      post-template output-path)))))
 
+(def blog-id (atom 0))
+
 (defn render-post-archive []
   (let [post-blurbs 
          (for [post (sort-by :date #(compare %2 %1) @posts)] ;; here we reverse the normal order of compare
-           (let [content (str/replace (str/replace (post :content) #"<p>" "") #"</p>" "<br><br>")]
-           [:div {:class "text-block"}                       ;; to get posts in reverse-chronological order
-             [:h1 [:a {:href (post :link)} (post :title)]]
-             [:div {:class "meta-info"} (str (post :author) " · " (post :date-string) " · " (post :length) " words")]
-               (apply str (interpose " " (take 100 (str/split content #" ")))) 
+                                                             ;; to get posts in reverse-chronological order
+           (let [content (str/split (str/replace (str/replace (post :content) #"<p>" "") #"</p>" "<br><br>") #" ")]
+             [:div {:class "text-block"}                       
+               [:h1 [:a {:href (post :link)} (post :title)]]
+               [:div {:class "meta-info"} (str (post :author) " · " (post :date-string) " · " (post :length) " words")]
+               (apply str (interpose " " (take 100 content))) 
                (if (> (post :length) 100)
-                 (let [blurb-id (str/replace (post :link) #".html" "")]
-                  (h/html 
-                  [:span {:id (str "more-" blurb-id) :style "display:none;"} 
-                    (str " " (apply str (interpose " " (drop 100 (str/split content #" ")))))]
-                  [:noscript
-                    [:a {:href (post :link)} "..." [:br][:br] "(read more)"]
-                    [:style (str "#link-" blurb-id " { display: none; }")]]
-                  [:a {:href (str "javascript:showMore(" blurb-id ")") :id (str "link-" blurb-id)} "..." [:br][:br] "(read more)"])
+                 (let [blurb-id (swap! blog-id inc)] ;; IDs will be unique to the page
+                   (h/html 
+                     [:span {:id (str "more-" blurb-id) :style "display:none;"} 
+                       (str " " (apply str (interpose " " (drop 100 content))))]
+                     [:noscript
+                       [:a {:href (post :link)} "..." [:br][:br] "(read more)"]
+                       [:style (str "#link-" blurb-id " { display: none; }")]]
+                     [:a {:href (str "javascript:showMore(" blurb-id ")") :id (str "link-" blurb-id)}
+                         [:span {:id (str "ellipses-" blurb-id)} "..." [:br][:br]] ;; lovely span soup
+                         [:span {:id (str "moreless-" blurb-id)} "(read more)"]])  ;; (don't eat)
                       ))]))
-        html (parser/render (slurp "resources/templates/titlebar-and-theme.html") {:content (html5 post-blurbs)})]
+          ;; Yes, we're writing inline JavaScript. 
+          script [:script (str 
+                   "function showMore(id) {\n"
+                   "    const link = document.getElementById(`link-${id}`);\n"
+                   "    const more = document.getElementById(`more-${id}`);\n"
+                   "    const moreLessTag = document.getElementById(`moreless-${id}`);\n"
+                   "    const ellipses = document.getElementById(`ellipses-${id}`);\n"
+                   "    if (more.style.display === 'none') {\n"
+                   "        moreLessTag.textContent = '(show less)';\n"
+                   "        more.style.display = 'inline'; // Show the hidden content\n"
+                   "        ellipses.style.display = 'none';\n"
+                   "    } else {\n"
+                   "        ellipses.style.display = 'inline';\n"
+                   "        moreLessTag.textContent = '(read more)';\n"
+                   "        link.style.display = 'inline';\n"
+                   "        more.style.display = 'none';\n"
+                   "    }\n"
+                   "}")] 
+          html (parser/render (slurp "resources/templates/titlebar-and-theme.html") {:content (html5 post-blurbs script)})]
     (spit "docs/post-archive.html" html)))    
 
 (defn -main [& args]
