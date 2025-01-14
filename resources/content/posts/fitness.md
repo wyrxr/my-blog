@@ -1,0 +1,1 @@
+Embracing a fit lifestyle goes beyond the gym. It's about making small changes every day that add up to big results. Whether it’s choosing stairs over the elevator or a salad over a sandwich, each choice makes a difference. Let's get moving!

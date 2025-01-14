@@ -1,6 +1,7 @@
 (ns my-blog.core
   (:require [markdown.core :as md]
             [hiccup.page :refer [html5]]
+            [hiccup2.core :as h]
             [selmer.parser :as parser]
             [clojure.string :as str]
             [my-blog.server :refer [launch-site]])) 
@@ -60,15 +61,24 @@
                      post-template output-path)))))
 
 (defn render-post-archive []
-  (let [post-blurbs (html5
-                      (for [post (sort-by :date #(compare %2 %1) @posts)] ;; here we reverse the normal order of compare
-                        [:div {:class "text-block"}                       ;; to get posts in reverse-chronological order
-                          [:h1 [:a {:href (post :link)} (post :title)]]
-                          [:div {:class "meta-info"} (str (post :author) " · " (post :date-string) " · " (post :length) " words")]
-                          (str (apply str (interpose " " (take 100 (str/split (post :content) #" "))))) 
-                          (if (> (post :length) 100)
-                                 [:a {:href (post :link)} "...<br><br>(read more)"])]))
-        html (parser/render (slurp "resources/templates/titlebar-and-theme.html") {:content post-blurbs})]
+  (let [post-blurbs 
+         (for [post (sort-by :date #(compare %2 %1) @posts)] ;; here we reverse the normal order of compare
+           (let [content (str/replace (str/replace (post :content) #"<p>" "") #"</p>" "<br><br>")]
+           [:div {:class "text-block"}                       ;; to get posts in reverse-chronological order
+             [:h1 [:a {:href (post :link)} (post :title)]]
+             [:div {:class "meta-info"} (str (post :author) " · " (post :date-string) " · " (post :length) " words")]
+               (apply str (interpose " " (take 100 (str/split content #" ")))) 
+               (if (> (post :length) 100)
+                 (let [blurb-id (str/replace (post :link) #".html" "")]
+                  (h/html 
+                  [:span {:id (str "more-" blurb-id) :style "display:none;"} 
+                    (str " " (apply str (interpose " " (drop 100 (str/split content #" ")))))]
+                  [:noscript
+                    [:a {:href (post :link)} "..." [:br][:br] "(read more)"]
+                    [:style (str "#link-" blurb-id " { display: none; }")]]
+                  [:a {:href (str "javascript:showMore(" blurb-id ")") :id (str "link-" blurb-id)} "..." [:br][:br] "(read more)"])
+                      ))]))
+        html (parser/render (slurp "resources/templates/titlebar-and-theme.html") {:content (html5 post-blurbs)})]
     (spit "docs/post-archive.html" html)))    
 
 (defn -main [& args]
