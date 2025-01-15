@@ -62,6 +62,35 @@
 
 (def blog-id (atom 0))
 
+(defn paginate-post-archive [blurbs template script posts-per-page]
+  (->> blurbs
+     (partition posts-per-page posts-per-page nil)
+     ((fn [pages]
+        (let [page-count (count pages)]
+          (loop [[page & remaining] (reverse pages) ;; to maintain stable URLs, post pages are numbered chronologically
+                 page-number 0]
+            (if page
+              (let [navbar 
+                     [:div {:class "text-block"} 
+                      [:span
+                       (if (zero? page-number)                        ;
+                           [:span "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀0"]
+                           [:a {:href "post-archive-0.html"} "<<-Oldest"])
+                       (if-not (< page-number 2)
+                               ;; MAGIC WHITESPACE
+                               [:span "⠀⠀⠀" [:a {:href (str "post-archive-" (dec page-number) ".html")} "<-Older Posts···"]])
+                       ;; EVIL WHITESPACE HACKS
+                       (if (= page-number 1)
+                           [:span "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ ⠀⠀⠀⠀1"])
+                       (if-not (< page-number 2) [:span (str (apply str (repeat (- 8 (count (str page-number))) "⠀")) page-number)])
+                       (if-not (= page-number (dec page-count))
+                               [:span {:style "float:right;"}
+                                 (if-not (> page-number (- page-count 3))
+                                         [:span [:a {:href (str "Post-archive-" (inc page-number) ".html")} "···Newer Posts->⠀"] "⠀⠀⠀"])
+                                 [:a {:href (str "post-archive-" (dec page-count) ".html")} "Newest Posts->>"]])]]]
+                (do (spit (str "docs/post-archive-" page-number ".html") (parser/render template {:content (html5 page navbar script)}))
+                    (recur remaining (inc page-number)))))))))))
+
 (defn render-post-archive []
   (let [post-blurbs 
          (for [post (sort-by :date #(compare %2 %1) @posts)] ;; here we reverse the normal order of compare
@@ -73,7 +102,7 @@
                (apply str (interpose " " (take 100 content))) 
                (if (> (post :length) 100)
                  (let [blurb-id (swap! blog-id inc)] ;; IDs will be unique to the page
-                   (h/html 
+                   (html5 
                      [:span {:id (str "more-" blurb-id) :style "display:none;"} 
                        (str " " (apply str (interpose " " (drop 100 content))))]
                      [:noscript
@@ -100,9 +129,8 @@
                    "        link.style.display = 'inline';\n"
                    "        more.style.display = 'none';\n"
                    "    }\n"
-                   "}")] 
-          html (parser/render (slurp "resources/templates/titlebar-and-theme.html") {:content (html5 post-blurbs script)})]
-    (spit "docs/post-archive.html" html)))    
+                   "}")]]
+    (paginate-post-archive post-blurbs (slurp "resources/templates/titlebar-and-theme.html") script 10)))    
 
 (defn -main [& args]
   (generate-posts post-path post-format)
