@@ -4,6 +4,7 @@
             [hiccup2.core :as h]
             [selmer.parser :as parser]
             [clojure.string :as str]
+            [clojure.math :as math]
             [my-blog.server :refer [launch-site]])) 
 
 ;; A list to keep track of the aggregated posts
@@ -12,7 +13,7 @@
 (def post-path "resources/content/posts")
 
 ;; Sitewide formatting template
-(def site-format (slurp "resources/templates/titlebar-and-theme.html"))
+(def site-format (atom (slurp "resources/templates/titlebar-and-theme.html")))
 
 ;; Format for the individual blog posts
 (def post-format (slurp "resources/templates/blog-post.html"))
@@ -33,7 +34,7 @@
     (when (.endsWith (.getName file) ".md")
       (let [output-path (str "docs/" (.replace (.getName file) ".md" ".html"))]
         (render-page (md/md-to-html-string (slurp (.getPath file)))
-                     site-format
+                     @site-format
                      output-path))))) 
 
 ;; Render a post: The blog-post.html template expects a title, author, date, length, and content.
@@ -44,10 +45,8 @@
                  {:date-string (parse-date (meta-info :date)) 
                   :length word-count 
                   :content content 
-                  :link (.replace output-path "docs/" "")}) 
-        html (parser/render template template-keys)]
-    (swap! posts conj template-keys)
-    (render-page html site-format output-path)))
+                  :link (.replace output-path "docs/" "")})]
+    (swap! posts conj template-keys)))
 
 ;; Creates posts based on the given path
 ;; Uses read-string function from clojure.core
@@ -58,8 +57,14 @@
       (let [output-path (str "docs/" (.replace (.getName file) ".md" ".html"))]
         (render-post (md/md-to-html-string (slurp (.getPath file))) 
                      (read-string (slurp (.replace (.getPath file) ".md" ".meta"))) 
-                     post-template output-path)))))
+                     post-template output-path))))
+  (swap! site-format #(parser/render % {:post-archive (str "post-archive-" (int (math/floor (/ (count @posts) 10))) ".html")
+                                               :content "{{content|safe}}"}))
+  (dorun 
+    (for [post @posts]
+      (spit (str "docs/" (:link post)) (parser/render @site-format {:content (parser/render post-format post)})))))
 
+  
 (def blog-id (atom 0))
 
 (defn paginate-post-archive [blurbs template script posts-per-page]
