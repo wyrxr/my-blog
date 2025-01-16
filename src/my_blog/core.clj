@@ -5,6 +5,7 @@
             [selmer.parser :as parser]
             [clojure.string :as str]
             [clojure.math :as math]
+            [clojure.java.io :refer [make-parents]]
             [my-blog.server :refer [launch-site]])) 
 
 ;; A list to keep track of the aggregated posts
@@ -32,7 +33,7 @@
 (defn render-standalone-pages [path-to-content]
   (doseq [file (file-seq (clojure.java.io/file path-to-content))]
     (when (.endsWith (.getName file) ".md")
-      (let [output-path (str "docs/" (.replace (.getName file) ".md" ".html"))]
+      (let [output-path (.replace (.getName file) ".md" ".html")]
         (render-page (md/md-to-html-string (slurp (.getPath file)))
                      @site-format
                      output-path))))) 
@@ -45,33 +46,47 @@
                  {:date-string (parse-date (meta-info :date)) 
                   :length word-count 
                   :content content 
-                  :link (.replace output-path "docs/" "")})]
-    (swap! posts conj template-keys)))
+                  ; :link (.replace output-path "docs" "/")
+                  :link output-path
+                  :tags-formatted
+                  (str "tags: " 
+                       (h/html (map #(identity [:li [:a {:href (str "/tags/" % "/post-archive-0.html")} %]]) 
+                                         (or (meta-info :tags) ["untagged"]))))
+                  :tags (or (meta-info :tags) ["untagged"])})]
+
+    (swap! posts conj template-keys)
+    (make-parents (:link template-keys))
+    (println "aaaa")
+    (spit (str "docs/" (:link template-keys)) (parser/render @site-format {:content (parser/render post-format template-keys)}))))
 
 ;; Creates posts based on the given path
 ;; Uses read-string function from clojure.core
 ;; Do not use on untrusted data
-(defn generate-posts [post-path post-template]
+(defn generate-posts [post-path post-template output-directory]
+  (do
   (doseq [file (file-seq (clojure.java.io/file post-path))]
     (when (.endsWith (.getName file) ".md")
-      (let [output-path (str "docs/" (.replace (.getName file) ".md" ".html"))]
+      (let [output-path (str output-directory (.replace (.getName file) ".md" ".html"))]
         (render-post (md/md-to-html-string (slurp (.getPath file))) 
                      (read-string (slurp (.replace (.getPath file) ".md" ".meta"))) 
                      post-template output-path))))
-  (swap! site-format #(parser/render % {:post-archive (str "post-archive-" (int (math/floor (/ (count @posts) 10))) ".html")
+    (swap! site-format #(parser/render % {:post-archive (h/html [:a {:href (str "/posts/post-archive-" (int (math/floor (/ (count @posts) 10))) ".html")} "Posts"])
                                                :content "{{content|safe}}"}))
-  (dorun 
     (for [post @posts]
-      (spit (str "docs/" (:link post)) (parser/render @site-format {:content (parser/render post-format post)})))))
+      (do 
+        (println (str "docs/posts/" (:link post))) 
+        (make-parents (str "docs/posts/" (:link post)))))))
 
   
 (def blog-id (atom 0))
 
-(defn paginate-post-archive [blurbs template script posts-per-page]
+(defn paginate-post-archive [blurbs output-location template script posts-per-page archive-title]
   (->> blurbs
      (partition posts-per-page posts-per-page nil)
      ((fn [pages]
-        (let [page-count (count pages)]
+        (let [page-count (count pages)
+             archive-title 
+             [:div {:class "archive-title"} archive-title]]
           (loop [[page & remaining] (reverse pages) ;; to maintain stable URLs, post pages are numbered chronologically
                  page-number 0]
             (if page
@@ -93,21 +108,24 @@
                                  (if-not (> page-number (- page-count 3))
                                          [:span [:a {:href (str "Post-archive-" (inc page-number) ".html")} "···Newer Posts->⠀"] "⠀⠀⠀"])
                                  [:a {:href (str "post-archive-" (dec page-count) ".html")} "Newest Posts->>"]])]]]
-                (do (spit (str "docs/post-archive-" page-number ".html") (parser/render template {:content (html5 page navbar script)}))
+                (do (make-parents (str output-location "post-archive-" page-number ".html")) 
+                    (spit (str output-location "post-archive-" page-number ".html") (parser/render template {:content (html5 archive-title page navbar script)}))
                     (recur remaining (inc page-number)))))))))))
 
-(defn render-post-archive []
+(defn render-post-archive [output-location posts archive-title]
   (let [post-blurbs 
-         (for [post (sort-by :date #(compare %2 %1) @posts)] ;; here we reverse the normal order of compare
+         (for [post (sort-by :date #(compare %2 %1) posts)] ;; here we reverse the normal order of compare
                                                              ;; to get posts in reverse-chronological order
-           (let [content (str/split (str/replace (str/replace (post :content) #"<p>" "") #"</p>" "<br><br>") #" ")]
+           
+           (html5                                                 
+            (let [content (str/split (str/replace (str/replace (post :content) #"<p>" "") #"</p>" "<br><br>") #" ")]
              [:div {:class "text-block"}                       
                [:h1 [:a {:href (post :link)} (post :title)]]
                [:div {:class "meta-info"} (str (post :author) " · " (post :date-string) " · " (post :length) " words")]
                (apply str (interpose " " (take 100 content))) 
                (if (> (post :length) 100)
                  (let [blurb-id (swap! blog-id inc)] ;; IDs will be unique to the page
-                   (html5 
+                   [:span
                      [:span {:id (str "more-" blurb-id) :style "display:none;"} 
                        (str " " (apply str (interpose " " (drop 100 content))))]
                      [:noscript
@@ -115,8 +133,10 @@
                        [:style (str "#link-" blurb-id " { display: none; }")]]
                      [:a {:href (str "javascript:showMore(" blurb-id ")") :id (str "link-" blurb-id)}
                          [:span {:id (str "ellipses-" blurb-id)} "..." [:br][:br]] ;; lovely span soup
-                         [:span {:id (str "moreless-" blurb-id)} "(read more)"]])  ;; (don't eat)
-                      ))]))
+                         [:span {:id (str "moreless-" blurb-id)} "(read more)"]]]   ;; (don't eat)
+                       ))
+                [:div {:class "tags"}
+                  (post :tags-formatted)]])))
           ;; Yes, we're writing inline JavaScript. 
           script [:script (str 
                    "function showMore(id) {\n"
@@ -135,11 +155,22 @@
                    "        more.style.display = 'none';\n"
                    "    }\n"
                    "}")]]
-    (paginate-post-archive post-blurbs (slurp "resources/templates/titlebar-and-theme.html") script 10)))    
+    (paginate-post-archive post-blurbs output-location @site-format script 10 archive-title)))    
 
 (defn -main [& args]
-  (generate-posts post-path post-format)
-  (render-post-archive)
+  (generate-posts post-path post-format "/posts/")
+  (render-post-archive "docs/posts/" @posts "All Posts")
+  (->> @posts
+       (map :tags)
+       (flatten)
+       (set)
+       (map #(identity [% (filter (fn [x] (some #{%} (:tags x))) @posts)]))
+       (into {})
+       (map (fn [[tag tagged-posts]] (render-post-archive (str "docs/tags/" tag "/") tagged-posts (str "Posts tagged '" tag "'"))))
+       (clojure.pprint/pprint))
+  (->> @posts
+       (map #(spit (str "docs/" (:link %)) (parser/render @site-format {:content (parser/render post-format %)})))
+       (dorun))
   (render-standalone-pages "resources/content/standalone")
   (if (some #{"server"} args) ;; "lein run server" will build the website and launch the server. 
     (do (println "Testing 1, 2, 3...")

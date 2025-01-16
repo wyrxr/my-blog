@@ -91,6 +91,40 @@
             max-width: 800px;
             border-radius: 5px;
         }
+
+	.tags {
+          margin-top: 1em;          /* Adds a bit of space above the tags section */
+          font-family: sans-serif;  /* Pick a font that suits your site */
+          font-size: 0.9rem;        /* Adjust if you want bigger or smaller tags */
+        }
+
+       .tags ul {
+         list-style-type: none;    /* Remove bullet points for a cleaner look */
+         margin: 0;                /* Remove default margin */
+         padding: 0;               /* Remove default padding */
+       }
+       
+       .tags li {
+         display: inline-block;      /* Put each tag inline so they line up horizontally */
+         background-color: #f0f0f0;  /* Light gray background */
+         margin: 0 0.3em 0.3em 0;    /* Some spacing between tags */
+         padding: 0.3em 0.6em;       /* Padding around the text */
+         border-radius: 1em;         /* Rounded corners for a pill look */
+         transition: background-color 0.2s, color 0.2s;
+       }
+       
+       .tags li:hover {
+         background-color: #dcdcdc;  /* Slightly darker hover effect */
+       }
+       
+       .tags a {
+         text-decoration: none;      /* Remove underline from tag links */
+         color: #555;                /* Medium gray text color */
+       }
+       
+       .tags a:hover {
+         color: #000;                /* Darker text on hover for emphasis */
+       }
     </style>
 </head>
 <body>
@@ -100,7 +134,7 @@
         <nav>
             <a href="index.html">Home</a>
             <a href="about.html">About</a>
-	    <a href=post-archive-1.html>Posts</a>
+	    <a href="/posts/post-archive-1.html">Posts</a>
             <a href="contact.html">Contact</a>
         </nav>
     </header>

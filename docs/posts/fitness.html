@@ -125,6 +125,23 @@
        .tags a:hover {
          color: #000;                /* Darker text on hover for emphasis */
        }
+
+       .archive-title {
+	    font-family: 'Literata', serif; /* Consistent with the main font */
+	    font-size: 24px;                /* Prominent size but not overly large */
+	    color: #ffcc00;                 /* Bright, attention-catching color */
+	    background-color: #282828;      /* Slightly lighter dark gray to distinguish from body */
+	    padding: 15px 20px;             /* Generous padding for visual space */
+	    margin: 20px auto;              /* Centers the title and adds space around it */
+	    text-align: center;             /* Centers the text for prominence */
+	    border-top: 1px solid #303030;  /* Subtle top border */
+	    border-bottom: 1px solid #303030; /* Subtle bottom border for visual structure */
+	    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Subtle shadow for depth */
+	    width: 80%;                     /* Matches the content width for consistency */
+	    max-width: 800px;               /* Limits maximum width for large displays */
+	    border-radius: 5px;             /* Slightly rounded corners to soften the edges */
+	}
+
     </style>
 </head>
 <body>
@@ -132,13 +149,26 @@
     <header>
         <div class="site-title">Weary, Yet Reading eXcites Reflection</div>
         <nav>
-            <a href="index.html">Home</a>
-            <a href="about.html">About</a>
+            <a href="/index.html">Home</a>
+            <a href="/about.html">About</a>
 	    <a href="/posts/post-archive-1.html">Posts</a>
-            <a href="contact.html">Contact</a>
+            <a href="/contact.html">Contact</a>
         </nav>
     </header>
-    <p><center><img src="books.jpeg"></center></p>
+        <div class="text-block">
+        <!-- TITLE GOES HERE -->
+        <h1>Fitness Focus</h1>
+        <div class="meta-info">
+            <!-- AUTHOR AND DATE GO HERE -->
+            Mara Strong · Sep. 10, 2023 at 5:50 · 42 words
+        </div>
+        <!-- POST GOES HERE -->
+        <p>Embracing a fit lifestyle goes beyond the gym. It's about making small changes every day that add up to big results. Whether it’s choosing stairs over the elevator or a salad over a sandwich, each choice makes a difference. Let's get moving!</p>
+	<div class="tags">
+	  tags: <li><a href="/tags/untagged/post-archive-0.html">untagged</a></li>
+	</div>
+    </div>
+
     <footer><p xmlns:cc="http://creativecommons.org/ns#" >Unless otherwise noted, the content of this website is licensed under <a href="https://creativecommons.org/licenses/by-sa/4.0/?ref=chooser-v1" target="_blank" rel="license noopener noreferrer" style="display:inline-block;">CC BY-SA 4.0<img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/cc.svg?ref=chooser-v1" alt=""><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/by.svg?ref=chooser-v1" alt=""><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/sa.svg?ref=chooser-v1" alt=""></a></p>
 
    <p>Made with ❤️ and my custom <a href="https://github.com/wyrxr/my-blog/">Clojure static site generator!</a></p></footer>

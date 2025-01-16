@@ -125,6 +125,23 @@
        .tags a:hover {
          color: #000;                /* Darker text on hover for emphasis */
        }
+
+       .archive-title {
+	    font-family: 'Literata', serif; /* Consistent with the main font */
+	    font-size: 24px;                /* Prominent size but not overly large */
+	    color: #ffcc00;                 /* Bright, attention-catching color */
+	    background-color: #282828;      /* Slightly lighter dark gray to distinguish from body */
+	    padding: 15px 20px;             /* Generous padding for visual space */
+	    margin: 20px auto;              /* Centers the title and adds space around it */
+	    text-align: center;             /* Centers the text for prominence */
+	    border-top: 1px solid #303030;  /* Subtle top border */
+	    border-bottom: 1px solid #303030; /* Subtle bottom border for visual structure */
+	    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Subtle shadow for depth */
+	    width: 80%;                     /* Matches the content width for consistency */
+	    max-width: 800px;               /* Limits maximum width for large displays */
+	    border-radius: 5px;             /* Slightly rounded corners to soften the edges */
+	}
+
     </style>
 </head>
 <body>
@@ -132,13 +149,26 @@
     <header>
         <div class="site-title">Weary, Yet Reading eXcites Reflection</div>
         <nav>
-            <a href="index.html">Home</a>
-            <a href="about.html">About</a>
+            <a href="/index.html">Home</a>
+            <a href="/about.html">About</a>
 	    <a href="/posts/post-archive-1.html">Posts</a>
-            <a href="contact.html">Contact</a>
+            <a href="/contact.html">Contact</a>
         </nav>
     </header>
-    <p><center><img src="books.jpeg"></center></p>
+        <div class="text-block">
+        <!-- TITLE GOES HERE -->
+        <h1>To Be Or Not To Be</h1>
+        <div class="meta-info">
+            <!-- AUTHOR AND DATE GO HERE -->
+            Shakespeare · Jan. 12, 1608 at 7:45 · 256 words
+        </div>
+        <!-- POST GOES HERE -->
+        <p>To be, or not to be, that is the question:<br> Whether 'tis nobler in the mind to suffer<br> The slings and arrows of outrageous fortune,<br> Or to take arms against a sea of troubles<br> And by opposing end them. To die—to sleep,<br> No more; and by a sleep to say we end<br> The heart-ache and the thousand natural shocks<br> That flesh is heir to: 'tis a consummation<br> Devoutly to be wish'd. To die, to sleep;<br> To sleep, perchance to dream—ay, there's the rub:<br> For in that sleep of death what dreams may come,<br> When we have shuffled off this mortal coil,<br> Must give us pause—there's the respect<br> That makes calamity of so long life.<br> For who would bear the whips and scorns of time,<br> Th'oppressor's wrong, the proud man's contumely,<br> The pangs of dispriz'd love, the law's delay,<br> The insolence of office, and the spurns<br> That patient merit of th'unworthy takes,<br> When he himself might his quietus make<br> With a bare bodkin? Who would fardels bear,<br> To grunt and sweat under a weary life,<br> But that the dread of something after death,<br> The undiscovere'd country, from whose bourn<br> No traveller returns, puzzles the will,<br> And makes us rather bear those ills we have<br> Than fly to others that we know not of?<br> Thus conscience doth make cowards of us all,<br> And thus the native hue of resolution<br> Is sicklied o'er with the pale cast of thought,<br> And enterprises of great pith and moment<br> With this regard their currents turn awry<br> And lose the name of action.</p>
+	<div class="tags">
+	  tags: <li><a href="/tags/this/post-archive-0.html">this</a></li><li><a href="/tags/post/post-archive-0.html">post</a></li><li><a href="/tags/has/post-archive-0.html">has</a></li><li><a href="/tags/way/post-archive-0.html">way</a></li><li><a href="/tags/too/post-archive-0.html">too</a></li><li><a href="/tags/many/post-archive-0.html">many</a></li><li><a href="/tags/tags/post-archive-0.html">tags</a></li><li><a href="/tags/test/post-archive-0.html">test</a></li><li><a href="/tags/test/post-archive-0.html">test</a></li><li><a href="/tags/test/post-archive-0.html">test</a></li><li><a href="/tags/asdf/post-archive-0.html">asdf</a></li><li><a href="/tags/adffd/post-archive-0.html">adffd</a></li><li><a href="/tags/dkkdkdkeiei/post-archive-0.html">dkkdkdkeiei</a></li><li><a href="/tags/tag with spaces/post-archive-0.html">tag with spaces</a></li>
+	</div>
+    </div>
+
     <footer><p xmlns:cc="http://creativecommons.org/ns#" >Unless otherwise noted, the content of this website is licensed under <a href="https://creativecommons.org/licenses/by-sa/4.0/?ref=chooser-v1" target="_blank" rel="license noopener noreferrer" style="display:inline-block;">CC BY-SA 4.0<img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/cc.svg?ref=chooser-v1" alt=""><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/by.svg?ref=chooser-v1" alt=""><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/sa.svg?ref=chooser-v1" alt=""></a></p>
 
    <p>Made with ❤️ and my custom <a href="https://github.com/wyrxr/my-blog/">Clojure static site generator!</a></p></footer>
