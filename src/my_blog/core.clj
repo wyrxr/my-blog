@@ -36,7 +36,7 @@
       (let [output-path (.replace (.getName file) ".md" ".html")]
         (render-page (md/md-to-html-string (slurp (.getPath file)))
                      @site-format
-                     output-path))))) 
+                     (str "docs/" output-path)))))) 
 
 ;; Render a post: The blog-post.html template expects a title, author, date, length, and content.
 (defn render-post [content meta-info template output-path]
@@ -50,13 +50,12 @@
                   :link output-path
                   :tags-formatted
                   (str "tags: " 
-                       (h/html (map #(identity [:li [:a {:href (str "/tags/" % "/post-archive-0.html")} %]]) 
+                       (h/html (map #(identity [:li [:a {:href (str "/my-blog/tags/" % "/post-archive-0.html")} %]]) 
                                          (or (meta-info :tags) ["untagged"]))))
                   :tags (or (meta-info :tags) ["untagged"])})]
 
     (swap! posts conj template-keys)
     (make-parents (:link template-keys))
-    (println "aaaa")
     (spit (str "docs/" (:link template-keys)) (parser/render @site-format {:content (parser/render post-format template-keys)}))))
 
 ;; Creates posts based on the given path
@@ -70,14 +69,9 @@
         (render-post (md/md-to-html-string (slurp (.getPath file))) 
                      (read-string (slurp (.replace (.getPath file) ".md" ".meta"))) 
                      post-template output-path))))
-    (swap! site-format #(parser/render % {:post-archive (h/html [:a {:href (str "/posts/post-archive-" (int (math/floor (/ (count @posts) 10))) ".html")} "Posts"])
-                                               :content "{{content|safe}}"}))
-    (for [post @posts]
-      (do 
-        (println (str "docs/posts/" (:link post))) 
-        (make-parents (str "docs/posts/" (:link post)))))))
-
-  
+    (swap! site-format #(parser/render % {:post-archive (h/html [:a {:href (str "/my-blog/posts/post-archive-" (int (math/floor (/ (count @posts) 10))) ".html")} "Posts"])
+                                               :content "{{content|safe}}"}))))
+        
 (def blog-id (atom 0))
 
 (defn paginate-post-archive [blurbs output-location template script posts-per-page archive-title]
@@ -95,10 +89,10 @@
                       [:span
                        (if (zero? page-number)                        ;
                            [:span "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀0"]
-                           [:a {:href "post-archive-0.html"} "<<-Oldest"])
+                           [:a {:href "/my-blog/post-archive-0.html"} "<<-Oldest"])
                        (if-not (< page-number 2)
                                ;; MAGIC WHITESPACE
-                               [:span "⠀⠀⠀" [:a {:href (str "post-archive-" (dec page-number) ".html")} "<-Older Posts···"]])
+                               [:span "⠀⠀⠀" [:a {:href (str "/my-blog/post-archive-" (dec page-number) ".html")} "<-Older Posts···"]])
                        ;; EVIL WHITESPACE HACKS
                        (if (= page-number 1)
                            [:span "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ ⠀⠀⠀⠀1"])
@@ -106,10 +100,10 @@
                        (if-not (= page-number (dec page-count))
                                [:span {:style "float:right;"}
                                  (if-not (> page-number (- page-count 3))
-                                         [:span [:a {:href (str "Post-archive-" (inc page-number) ".html")} "···Newer Posts->⠀"] "⠀⠀⠀"])
-                                 [:a {:href (str "post-archive-" (dec page-count) ".html")} "Newest Posts->>"]])]]]
+                                         [:span [:a {:href (str "/my-blog/post-archive-" (inc page-number) ".html")} "···Newer Posts->⠀"] "⠀⠀⠀"])
+                                 [:a {:href (str "/my-blog/post-archive-" (dec page-count) ".html")} "Newest Posts->>"]])]]]
                 (do (make-parents (str output-location "post-archive-" page-number ".html")) 
-                    (spit (str output-location "post-archive-" page-number ".html") (parser/render template {:content (html5 archive-title page navbar script)}))
+                    (spit (str output-location "post-archive-" page-number ".html") (parser/render @site-format {:content (html5 archive-title page navbar script)}))
                     (recur remaining (inc page-number)))))))))))
 
 (defn render-post-archive [output-location posts archive-title]
@@ -120,7 +114,7 @@
            (html5                                                 
             (let [content (str/split (str/replace (str/replace (post :content) #"<p>" "") #"</p>" "<br><br>") #" ")]
              [:div {:class "text-block"}                       
-               [:h1 [:a {:href (post :link)} (post :title)]]
+               [:h1 [:a {:href (str "/my-blog" (post :link))} (post :title)]]
                [:div {:class "meta-info"} (str (post :author) " · " (post :date-string) " · " (post :length) " words")]
                (apply str (interpose " " (take 100 content))) 
                (if (> (post :length) 100)
@@ -129,7 +123,7 @@
                      [:span {:id (str "more-" blurb-id) :style "display:none;"} 
                        (str " " (apply str (interpose " " (drop 100 content))))]
                      [:noscript
-                       [:a {:href (post :link)} "..." [:br][:br] "(read more)"]
+                       [:a {:href (str "/my-blog/" (post :link))} "..." [:br][:br] "(read more)"]
                        [:style (str "#link-" blurb-id " { display: none; }")]]
                      [:a {:href (str "javascript:showMore(" blurb-id ")") :id (str "link-" blurb-id)}
                          [:span {:id (str "ellipses-" blurb-id)} "..." [:br][:br]] ;; lovely span soup
@@ -166,8 +160,7 @@
        (set)
        (map #(identity [% (filter (fn [x] (some #{%} (:tags x))) @posts)]))
        (into {})
-       (map (fn [[tag tagged-posts]] (render-post-archive (str "docs/tags/" tag "/") tagged-posts (str "Posts tagged '" tag "'"))))
-       (clojure.pprint/pprint))
+       (map (fn [[tag tagged-posts]] (render-post-archive (str "docs/tags/" tag "/") tagged-posts (str "Posts tagged '" tag "'")))))
   (->> @posts
        (map #(spit (str "docs/" (:link %)) (parser/render @site-format {:content (parser/render post-format %)})))
        (dorun))

@@ -7,7 +7,7 @@
 ;; GitHub pages deploys from the /docs folder: This mimics that behavior.
 ;; Currently used for local testing--presumably this could be deployed
 ;; on a server you control.
-(def root (str (System/getProperty "user.dir") "/docs"))
+(def root (str (System/getProperty "user.dir") "/my-blog"))
 
 (defn launch-site []
   (defroutes blog
