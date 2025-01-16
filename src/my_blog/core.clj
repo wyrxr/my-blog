@@ -89,10 +89,10 @@
                       [:span
                        (if (zero? page-number)                        ;
                            [:span "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀0"]
-                           [:a {:href "/my-blog/post-archive-0.html"} "<<-Oldest"])
+                           [:a {:href (str "/my-blog/" output-location "post-archive-0.html")} "<<-Oldest"])
                        (if-not (< page-number 2)
                                ;; MAGIC WHITESPACE
-                               [:span "⠀⠀⠀" [:a {:href (str "/my-blog/post-archive-" (dec page-number) ".html")} "<-Older Posts···"]])
+                               [:span "⠀⠀⠀" [:a {:href (str "/my-blog/" output-location "post-archive-" (dec page-number) ".html")} "<-Older Posts···"]])
                        ;; EVIL WHITESPACE HACKS
                        (if (= page-number 1)
                            [:span "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ ⠀⠀⠀⠀1"])
@@ -100,10 +100,10 @@
                        (if-not (= page-number (dec page-count))
                                [:span {:style "float:right;"}
                                  (if-not (> page-number (- page-count 3))
-                                         [:span [:a {:href (str "/my-blog/post-archive-" (inc page-number) ".html")} "···Newer Posts->⠀"] "⠀⠀⠀"])
-                                 [:a {:href (str "/my-blog/post-archive-" (dec page-count) ".html")} "Newest Posts->>"]])]]]
-                (do (make-parents (str output-location "post-archive-" page-number ".html")) 
-                    (spit (str output-location "post-archive-" page-number ".html") (parser/render @site-format {:content (html5 archive-title page navbar script)}))
+                                         [:span [:a {:href (str "/my-blog/" output-location "post-archive-" (inc page-number) ".html")} "···Newer Posts->⠀"] "⠀⠀⠀"])
+                                 [:a {:href (str "/my-blog/" output-location "post-archive-" (dec page-count) ".html")} "Newest Posts->>"]])]]]
+                (do (make-parents (str "docs/" output-location "post-archive-" page-number ".html")) 
+                    (spit (str "docs/" output-location "post-archive-" page-number ".html") (parser/render @site-format {:content (html5 archive-title page navbar script)}))
                     (recur remaining (inc page-number)))))))))))
 
 (defn render-post-archive [output-location posts archive-title]
@@ -153,14 +153,15 @@
 
 (defn -main [& args]
   (generate-posts post-path post-format "/posts/")
-  (render-post-archive "docs/posts/" @posts "All Posts")
+  (render-post-archive "posts/" @posts "All Posts")
   (->> @posts
        (map :tags)
        (flatten)
        (set)
        (map #(identity [% (filter (fn [x] (some #{%} (:tags x))) @posts)]))
        (into {})
-       (map (fn [[tag tagged-posts]] (render-post-archive (str "docs/tags/" tag "/") tagged-posts (str "Posts tagged '" tag "'")))))
+       (map (fn [[tag tagged-posts]] (render-post-archive (str "tags/" tag "/") tagged-posts (str "Posts tagged '" tag "'"))))
+       (dorun))
   (->> @posts
        (map #(spit (str "docs/" (:link %)) (parser/render @site-format {:content (parser/render post-format %)})))
        (dorun))
