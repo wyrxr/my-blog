@@ -7,10 +7,10 @@
 ;; GitHub pages deploys from the /docs folder: This mimics that behavior.
 ;; Currently used for local testing--presumably this could be deployed
 ;; on a server you control.
-(def root (str (System/getProperty "user.dir") "/my-blog"))
+(def root (str (System/getProperty "user.dir") "/server"))
 
 (defn launch-site []
   (defroutes blog
     (route/files "/" (do (println root) {:root root}))
-    (route/not-found (slurp "docs/404.html")))
+    (route/not-found (slurp "server/my-blog/404.html")))
   (run-jetty blog {:port 3000})) 

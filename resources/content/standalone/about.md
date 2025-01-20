@@ -1,6 +1,11 @@
 <h1 style="text-align:center"><strong>About Me</strong></h1>
 <div class="text-block">
-<img src="tricorn.jpeg" alt="Who is he?" width="77" align="left" hspace="7">
+<div class="image-container float-left">
+<a href="image-details/tricorn.html">
+<img src="tricorn.jpeg" alt="Black and white illustration of an old man with a tricorn hat leaning on a cane." width="77" hspace="7">
+<span class="tooltip">Image Details</span>
+</a>
+</div>
 Where do I begin? From what odious depths of purgatory have I emerged? Why should I be any different than the trillions of other blogs, which churn out their LLM-generated slop with the speed and effeciency that would make even the most notorious commercial writer blush?
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque tincidunt lectus vitae metus laoreet vulputate. Etiam imperdiet tempor tincidunt. Etiam vestibulum fermentum metus, at congue enim venenatis ut. Suspendisse et nibh mollis, efficitur diam eu, porta nunc. Nunc quis ligula convallis, gravida odio a, tincidunt lectus. Nam placerat vestibulum enim vitae blandit. Aliquam et urna auctor, porttitor dolor vel, ultrices orci. Proin aliquet enim ac iaculis luctus. Phasellus sit amet convallis diam, eget auctor augue.

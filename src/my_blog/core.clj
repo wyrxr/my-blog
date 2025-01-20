@@ -6,7 +6,8 @@
             [clojure.string :as str]
             [clojure.math :as math]
             [clojure.java.io :refer [make-parents]]
-            [my-blog.server :refer [launch-site]])) 
+            [my-blog.server :refer [launch-site]]
+            [clojure.java.shell :refer [sh]])) 
 
 ;; A list to keep track of the aggregated posts
 (def posts (atom (list)))
@@ -29,6 +30,16 @@
 (defn render-page [content template output-path]
   (let [html (parser/render template {:content content})]
     (spit output-path html))) 
+
+;; This function is VERY similar to the render-standalone-pages function,
+;; but it has a slightly different handling of files, which makes it clunky
+;; to create a generalized solution. 
+(defn render-pages [path-to-content template extension output-dir]
+  (doseq [file (file-seq (clojure.java.io/file path-to-content))]
+    (when (.endsWith (.getName file) extension)
+      (let [output-path (.replace (.getName file) extension ".html")]
+        (let [html (parser/render template (read-string (slurp (.getPath file))))]
+          (spit (str output-dir output-path) html))))))
 
 (defn render-standalone-pages [path-to-content]
   (doseq [file (file-seq (clojure.java.io/file path-to-content))]
@@ -166,6 +177,12 @@
        (map #(spit (str "docs/" (:link %)) (parser/render @site-format {:content (parser/render post-format %)})))
        (dorun))
   (render-standalone-pages "resources/content/standalone")
+  (render-pages "resources/content/image-details" 
+                (parser/render @site-format {:content (slurp "resources/templates/image-details.html")})
+                ".edn"
+                "docs/image-details/")
   (if (some #{"server"} args) ;; "lein run server" will build the website and launch the server. 
     (do (println "Testing 1, 2, 3...")
+        (sh "rm" "-rf" "server/my-blog")
+        (sh "cp" "-r" "docs" "server/my-blog")
         (launch-site))))
