@@ -1,4 +1,5 @@
-{:title "Bookshelf"
+{:image-link "/my-blog/books.jpeg"
+ :title "Bookshelf"
  :author "Nathaniel Ingle"
  :license-link "https://creativecommons.org/licenses/by-sa/4.0/?ref=chooser-v1"
  :license-name "CC BY-SA 4.0"
