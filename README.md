@@ -6,7 +6,7 @@ This is a program I wrote to render my personal blog. You could adapt it to your
 
 ## To-Do List
 
-- Add comment feature to posts 
+-- Add comment feature to posts --
 - Improve workflow for creating, editing, and publishing a post
 
 ### Bike-Shedding List
