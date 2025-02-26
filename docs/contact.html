@@ -32,8 +32,8 @@
         </nav>
     </header>
     <h1 style="text-align:center"><strong>Contact</strong></h1> <div class="text-block">
-    
-    <p>Email: <span id="email">[Processing...]</span></p>
+    <p><a href="https://github.com/wyrxr">GitHub (Preferred)</a></p>
+    <p><span id="email">[Processing...]</span></p>
 
     <script>
         // Base64 encoded email
@@ -59,7 +59,8 @@
             console.log(`Proof-of-work solved! Nonce: ${nonce}, Hash: ${hash}`);
 
             // Decode and display email
-            document.getElementById("email").textContent = atob(encodedEmail);
+	    const decodedEmail = atob(encodedEmail);
+		document.getElementById("email").innerHTML = `Email: <a href="mailto:${decodedEmail}">${decodedEmail}</a>`;
         }
 
         proofOfWork();
