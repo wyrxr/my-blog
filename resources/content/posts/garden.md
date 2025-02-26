@@ -1,1 +1,0 @@
-There's something truly magical about tending to a garden. Watching seeds turn into blooms and produce is a fulfilling journey. Whether you have a sprawling backyard or a small balcony space, start your green haven today and connect with nature.

@@ -1,1 +1,0 @@
-Art is a window to the soul. It expresses what words cannot. Whether you paint, sculpt, or draw, each creation is a reflection of your inner world. Share your artistic journey and inspire others to tap into their creative sides.

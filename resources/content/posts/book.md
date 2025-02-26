@@ -1,1 +1,0 @@
-Dive into the world of books where each page turns is a new adventure. Whether you’re into thrilling mysteries or romantic escapades, there’s a book waiting to transport you to another world. What's on your reading list this summer?

@@ -1,1 +1,0 @@
-This year's tech trends are all about sustainability and smart living. From energy-efficient appliances to AI-driven home systems, the future is looking green. Innovations are making it easier than ever to reduce our carbon footprint without sacrificing comfort or convenience.

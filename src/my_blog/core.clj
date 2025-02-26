@@ -57,7 +57,6 @@
                  {:date-string (parse-date (meta-info :date)) 
                   :length word-count 
                   :content content 
-                  ; :link (.replace output-path "docs" "/")
                   :link output-path
                   :tags-formatted
                   (str "tags: " 
@@ -82,6 +81,26 @@
                      post-template output-path))))
     (swap! site-format #(parser/render % {:post-archive (h/html [:a {:href (str "/my-blog/posts/post-archive-" (int (math/floor (/ (count @posts) 10))) ".html")} "Posts"])
                                                :content "{{content|safe}}"}))))
+
+(defn split-metadata [file]
+  (let [[metadata
+         content]
+        (str/split file #"### CONTENT BELOW ###")]
+    [(read-string metadata)
+     content]))
+
+(defn test-post [post-path post-template output-directory]
+  (doseq [file (file-seq (clojure.java.io/file post-path))]
+    (let [file-name (.getName file)]
+      (when (.endsWith file-name ".html")
+        (let [[metadata content] (split-metadata (slurp (.getPath file)))
+            output-path (str output-directory file-name)]
+          (render-post content metadata post-template output-path)))))
+  (swap! site-format 
+         #(parser/render % {:post-archive (h/html [:a {:href (str "/my-blog/posts/post-archive-" 
+                                                                  (int (math/floor (/ (count @posts) 10)))
+                                                                  ".html")} "Posts"])
+                            :content "{{content|safe}}"})))
         
 (def blog-id (atom 0))
 
@@ -100,7 +119,7 @@
                       [:span
                        (if (zero? page-number)                        ;
                            [:span "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀0"]
-                           [:a {:href (str "/my-blog/" output-location "post-archive-0.html")} "<<-Oldest"])
+                           [:a {:href (str "/my-blog/" output-location "post-archive-0.html")} "<<-Oldest Posts"])
                        (if-not (< page-number 2)
                                ;; MAGIC WHITESPACE
                                [:span "⠀⠀⠀" [:a {:href (str "/my-blog/" output-location "post-archive-" (dec page-number) ".html")} "<-Older Posts···"]])
@@ -125,7 +144,7 @@
            (html5                                                 
             (let [content (str/split (str/replace (str/replace (post :content) #"<p>" "") #"</p>" "<br><br>") #" ")]
              [:div {:class "text-block"}                       
-               [:h1 [:a {:href (str "/my-blog" (post :link))} (post :title)]]
+               [:h2 [:a {:href (str "/my-blog" (post :link))} (post :title)]]
                [:div {:class "meta-info"} (str (post :author) " · " (post :date-string) " · " (post :length) " words")]
                (apply str (interpose " " (take 100 content))) 
                (if (> (post :length) 100)
@@ -164,6 +183,7 @@
 
 (defn -main [& args]
   (generate-posts post-path post-format "/posts/")
+  #_(test-post post-path post-format "/posts/")
   (render-post-archive "posts/" @posts "All Posts")
   (->> @posts
        (map :tags)
